@@ -1,0 +1,28 @@
+version: '3'
+services:
+    app:
+        image: richarvey/nginx-php-fpm
+        ports:
+            - 80:80
+            - 443:443
+        depends_on:
+            - mysql
+        environment:
+            - WEBROOT=/var/www/html/web
+        volumes:
+            - .:/var/www/html
+            - /var/run/docker.sock:/tmp/docker.sock:ro
+    composer:
+        image: composer
+        depends_on:
+            - mysql
+        volumes:
+            - .:/app
+        command: install --prefer-dist --dev && ./yii migrate
+    mysql:
+        image: mariadb
+        environment:
+            - MYSQL_DATABASE=yii2basic
+            - MYSQL_ALLOW_EMPTY_PASSWORD=true
+        volumes:
+            - ./runtime/mysql:/var/lib/mysql
